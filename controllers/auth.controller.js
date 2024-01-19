@@ -29,9 +29,9 @@ const registerController = async (req, res) => {
         //     return res.send({ error: "Address is Required" });
         // }
         //check user
-        const exisitingUser = await userModel.findOne({ email });
+        const existingUser = await userModel.findOne({ email });
         //exisiting user
-        if (exisitingUser) {
+        if (existingUser) {
             return res.status(200).send({
                 success: true,
                 message: "Already Register please login",
@@ -125,4 +125,13 @@ const testController = (req, res) => {
     }
 };
 
-module.exports = { registerController, loginController, testController }
+
+const authorizeController = () => {
+
+    return res.status(200).send({
+        success: true,
+        message: 'Authorized Admin Access',
+    });
+
+}
+module.exports = { registerController, loginController, testController, authorizeController }

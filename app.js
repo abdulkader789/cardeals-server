@@ -3,7 +3,8 @@ const express = require('express');
 const app = express();
 const connectDB = require('./db/connect');
 const cors = require('cors');
-const router = require('./routes/auth.router')
+const authRouter = require('./routes/auth.router')
+const categoryRouter = require('./routes/category.router')
 const dotenv = require('dotenv')
 dotenv.config()
 app.use(express.json());
@@ -13,8 +14,8 @@ app.use(cors());
 
 
 
-app.use('/api/v1/auth', router)
-
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/category', categoryRouter)
 
 
 

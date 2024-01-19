@@ -28,21 +28,17 @@ const isAdmin = async (req, res, next) => {
 
         const userId = req.user._id;
         const user = await userModel.findById(userId);
-        console.log('user id from req', userId)
-        console.log('user is: ', user)
-        if (!user || user.role == 1) {
-            return res.status(200).send({
-                success: true,
-                message: 'Authorized Admin Access',
-            });
-        } else {
+
+        if (!user || user.role !== 1) {
             return res.status(401).send({
                 success: false,
-                message: 'Unauthorized Admin Access',
+                message: "UnAuthorized Access",
             });
+        } else {
+            next();
         }
 
-        next();
+
     } catch (error) {
         console.log(error);
         res.status(401).send({
