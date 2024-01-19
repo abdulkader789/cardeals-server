@@ -10,23 +10,24 @@ const { comparePassword, hashPassword } = require("../helpers/auth.helper");
 
 const registerController = async (req, res) => {
     try {
-        const { name, email, password, phone, address } = req.body;
+        const { email, password } = req.body;
         //validations
-        if (!name) {
-            return res.send({ error: "Name is Required" });
-        }
+
         if (!email) {
             return res.send({ error: "Email is Required" });
         }
         if (!password) {
             return res.send({ error: "Password is Required" });
         }
-        if (!phone) {
-            return res.send({ error: "Phone no is Required" });
-        }
-        if (!address) {
-            return res.send({ error: "Address is Required" });
-        }
+        // if (!name) {
+        //     return res.send({ error: "Name is Required" });
+        // }
+        // if (!phone) {
+        //     return res.send({ error: "Phone no is Required" });
+        // }
+        // if (!address) {
+        //     return res.send({ error: "Address is Required" });
+        // }
         //check user
         const exisitingUser = await userModel.findOne({ email });
         //exisiting user
@@ -40,17 +41,16 @@ const registerController = async (req, res) => {
         const hashedPassword = await hashPassword(password);
         //save
         const user = await new userModel({
-            name,
+
             email,
-            phone,
-            address,
+
             password: hashedPassword,
         }).save();
 
         res.status(201).send({
             success: true,
             message: "User Register Successfully",
-            user,
+            user: user,
         });
     } catch (error) {
         console.log(error);
@@ -101,6 +101,7 @@ const loginController = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 adddress: user.address,
+                role: user.role
             },
             token,
         });
