@@ -6,6 +6,40 @@ const categoryModel = require('../models/categoryModel');
 
 const asyncWrapper = require('../middleware/asyncWrapper')
 
+
+const getSingleCategoryController = async (req, res) => {
+    try {
+        const { slug } = req.params;
+
+        if (!slug) {
+            return res.status(400).json({ message: 'Category slug is required' });
+        }
+
+        const category = await categoryModel.findOne({ slug });
+
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Get Single Category Successfully',
+            category,
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error,
+            message: 'Error getting category',
+        });
+    }
+};
+
+
+
+
 const getAllCategoriesController = async (req, res) => {
     try {
         const categories = await categoryModel.find();
@@ -124,5 +158,6 @@ module.exports = {
     createCategoryController,
     updateCategoryController,
     deleteCategoryController,
-    getAllCategoriesController
+    getAllCategoriesController,
+    getSingleCategoryController
 };

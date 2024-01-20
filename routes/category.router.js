@@ -5,6 +5,7 @@ const {
     updateCategoryController,
     deleteCategoryController,
     getAllCategoriesController,
+    getSingleCategoryController
 } = require('../controllers/category.controller');
 const { requireSignIn, isAdmin } = require('../middleware/authMiddleware');
 
@@ -18,6 +19,7 @@ router.route('/update-category/:categoryId').put(requireSignIn, isAdmin, updateC
 router.route('/delete-category/:categoryId').delete(requireSignIn, isAdmin, deleteCategoryController);
 
 // Get All Categories
-router.route('/get-all-categories').get(requireSignIn, isAdmin, getAllCategoriesController);
+router.route('/get-all-categories').get(getAllCategoriesController);
+router.route('/get-single-category/:slug').get(getSingleCategoryController)
 
 module.exports = router;
