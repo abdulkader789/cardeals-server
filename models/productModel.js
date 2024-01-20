@@ -14,7 +14,7 @@ const ProductSchema = new mongoose.Schema({
     description: {
         overview: {
             type: String, // General overview of the car
-            required: true,
+
         },
         features: {
             type: [String], // Array of features the car offers
