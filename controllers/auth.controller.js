@@ -126,12 +126,4 @@ const testController = (req, res) => {
 };
 
 
-const authorizeController = () => {
-
-    return res.status(200).send({
-        success: true,
-        message: 'Authorized Admin Access',
-    });
-
-}
 module.exports = { registerController, loginController, testController, authorizeController }
