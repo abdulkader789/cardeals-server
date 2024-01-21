@@ -61,7 +61,7 @@ const getAllCategoriesController = async (req, res) => {
 
 const createCategoryController = async (req, res) => {
     try {
-        const { name } = req.body
+        const { name, status } = req.body
         if (!name) {
             return res.status(401).send({ message: 'Name is required' })
         }
@@ -72,7 +72,7 @@ const createCategoryController = async (req, res) => {
                 message: 'Category Already Exist'
             })
         }
-        const category = await new categoryModel({ name, slug: slugify(name) }).save()
+        const category = await new categoryModel({ name, status, slug: slugify(name) }).save()
         res.status(200).send({
             success: true,
             message: 'new cateogry created',
@@ -92,7 +92,7 @@ const createCategoryController = async (req, res) => {
 const updateCategoryController = async (req, res) => {
     try {
         const { categoryId } = req.params;
-        const { name } = req.body;
+        const { name, status } = req.body;
 
         if (!categoryId || !name) {
             return res.status(400).send({ message: 'Category ID and Name are required' });
@@ -100,6 +100,7 @@ const updateCategoryController = async (req, res) => {
 
         const existingCategory = await categoryModel.findByIdAndUpdate(categoryId, {
             name,
+            status,
             slug: slugify(name),
         }, { new: true });
 
@@ -125,6 +126,7 @@ const updateCategoryController = async (req, res) => {
 
 const deleteCategoryController = async (req, res) => {
     try {
+
         const { categoryId } = req.params;
 
         if (!categoryId) {
@@ -137,7 +139,7 @@ const deleteCategoryController = async (req, res) => {
             return res.status(404).json({ message: 'Category not found' });
         }
 
-        res.status(200).json({
+        res.status(204).json({
             success: true,
             message: 'Category deleted successfully',
             category: deletedCategory,

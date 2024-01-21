@@ -126,4 +126,4 @@ const testController = (req, res) => {
 };
 
 
-module.exports = { registerController, loginController, testController, authorizeController }
+module.exports = { registerController, loginController, testController }
