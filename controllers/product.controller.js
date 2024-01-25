@@ -5,23 +5,42 @@ const { default: slugify } = require('slugify');
 
 const createProductController = async (req, res) => {
     try {
-        let productData;
-
-        // Check if the request has files (form data)
-
-        const { name, description, category, price, quantity, url } = req.fields;
+        // Extract fields and files from the request
+        const { name, model, description, category, price, quantity, url, seatingCapacity, engine, transmission, fuelEfficiency, color, range, acceleration, chargingTime, popular, trending, availability } = req.fields;
         const { photo } = req.files;
 
+        // Create slug from the product name
+        const slug = slugify(name);
 
-        productData = {
+        // Check if the request has files (form data)
+        let productData = {
             name,
+            model,
             description,
             category,
             price,
             quantity,
-            slug: slugify(name),
-            url
+            url,
+            seatingCapacity,
+            engine,
+            transmission,
+            fuelEfficiency,
+            color,
+            range,
+            acceleration,
+            chargingTime,
+            popular,
+            trending,
+            availability,
+            slug,
         };
+
+        const existingProduct = await Product.findOne({ name, model });
+
+        if (existingProduct) {
+            // Product already exists, return a response
+            return res.status(400).send({ error: 'Product with the same name and model already exists' });
+        }
 
         // Photo Handling
         if (photo) {
@@ -34,16 +53,22 @@ const createProductController = async (req, res) => {
             };
         }
 
+        // Create a new Product instance
         const product = new Product(productData);
 
-
+        // Save the product to the database
         await product.save();
+
+        // Send a success response
         res.status(201).send({ success: true, message: 'Product Created Successfully', product });
-    }
-    catch (error) {
+    } catch (error) {
+        // Handle errors and send an error response
         res.status(500).send({ error: 'Error creating product', details: error.message });
     }
 };
+
+
+
 
 const updateProductController = async (req, res) => {
     const productId = req.params.productId;
