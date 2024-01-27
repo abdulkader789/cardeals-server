@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 const contactSubmissionSchema = new mongoose.Schema({
-    user: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Reference to the User model (assuming you have a User model)
         required: true,
