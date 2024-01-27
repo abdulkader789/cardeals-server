@@ -68,6 +68,112 @@ const createProductController = async (req, res) => {
 };
 
 
+const getProductPhotoController = async (req, res) => {
+    try {
+        const { productId } = req.params; // Extract the photo ID from request parameters
+
+        // Find the photo by ID in MongoDB and select specific fields
+        const product = await Product.findById(productId).select('photo'); // Example: Selecting title and imageUrl fields
+        if (product.photo.data) {
+            res.set("Content-type", product.photo.contentType)
+            return res.status(200).send(product.photo.data);
+        } else {
+            return res.status(404).send({ message: 'Photo not found' });
+        }
+
+    } catch (error) {
+        console.error('Error fetching photo:', error);
+        res.status(500).send({ message: 'Server error' });
+    }
+};
+
+
+const filterProductsController = async (req, res) => {
+    try {
+        // Extract filters from req.body
+        const { checked, radio } = req.body;
+
+        // Build query based on received filters
+        const query = {};
+
+        // Add checked categories to query
+        if (checked.length > 0) {
+            query.category = checked;
+        }
+
+        // Add price range filter to query
+        if (radio.length === 2) {
+            query.price = { $gte: radio[0], $lte: radio[1] };
+        }
+
+        // Execute the query to find products based on filters
+        const products = await Product.find(query);
+
+        // Return the filtered products as a response
+        res.status(200).send({ success: true, products });
+    } catch (error) {
+        console.error('Error applying filters:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const searchProductController = async (req, res) => {
+    try {
+        const { name, model } = req.body;
+
+        // Build query based on received search criteria
+        const query = {};
+
+        // Add search criteria for product name
+        if (name) {
+            query.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Add search criteria for product model
+        if (model) {
+            query.model = { $regex: model, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Find products based on search criteria
+        const products = await Product.find(query);
+
+        // Return the found products as a response
+        res.status(200).send({ success: true, products });
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).send({ message: 'Server error' });
+    }
+};
+
+
+// const filterProductsController = async (req, res) => {
+//     try {
+//         // Extract filters from req.body
+//         const { checkedFilters, radioFilter } = req.body;
+
+//         // Build query based on received filters
+//         const query = {};
+
+//         // Add checkedFilters to query
+//         if (checkedFilters && Array.isArray(checkedFilters) && checkedFilters.length > 0) {
+//             query['category'] = { $in: checkedFilters }; // Assuming category is the field to filter by
+//         }
+
+//         // Add radioFilter to query
+//         if (radioFilter) {
+//             query['priceRange'] = radioFilter; // Assuming priceRange is the field to filter by
+//         }
+
+//         // Execute the query to find products based on filters
+//         const products = await Product.find(query);
+
+//         // Return the filtered products as a response
+//         res.json(products);
+//     } catch (error) {
+//         console.error('Error applying filters:', error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 
 
 const updateProductController = async (req, res) => {
@@ -163,4 +269,7 @@ module.exports = {
     updateProductController,
     deleteProductController,
     getSingleProductController,
+    getProductPhotoController,
+    filterProductsController,
+    searchProductController
 };
