@@ -10,6 +10,7 @@ const {
     getProductPhotoController,
     filterProductsController,
     searchProductController,
+    getAllCategoryProductsController,
 } = require('../controllers/product.controller');
 const { requireSignIn, isAdmin } = require('../middleware/authMiddleware');
 const formidable = require('express-formidable');
@@ -22,6 +23,7 @@ router.route('/get-all-products').get(getAllProductsController);
 
 // Get Single Product by ID
 router.route('/get-single-product/:productId').get(getSingleProductController);
+router.route('/get-all-category-products/:categoryId').get(getAllCategoryProductsController);
 
 router.route('/get-product-photo/:productId').get(getProductPhotoController);
 router.route('/filter-products').post(filterProductsController);

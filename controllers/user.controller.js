@@ -1,5 +1,17 @@
 const ContactSubmission = require('../models/contactSubmissionModel')
 const Order = require('../models/orderModel')
+const userModel = require('../models/userModel')
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await userModel.find(); // Retrieve all users from the database
+        res.status(200).send(users); // Return the users as JSON
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+}
+
 const contactSubmission = async (req, res) => {
     try {
         // Extract data from request body
@@ -52,4 +64,4 @@ const createOrder = async (req, res) => {
     }
 }
 
-module.exports = { contactSubmission, createOrder }
+module.exports = { contactSubmission, createOrder, getAllUsers }

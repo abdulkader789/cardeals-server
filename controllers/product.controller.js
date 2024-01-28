@@ -263,6 +263,18 @@ const getAllProductsController = async (req, res) => {
     }
 };
 
+const getAllCategoryProductsController = async (req, res) => {
+    const categoryId = req.params.categoryId; // Extract categoryId from request params
+    try {
+        const products = await Product.find({ category: categoryId }); // Find all products with the specified categoryId
+        res.status(200).send({ success: true, products });
+    } catch (error) {
+        res.status(500).send({ error: 'Error getting category products', details: error.message });
+    }
+};
+
+
+
 module.exports = {
     createProductController,
     getAllProductsController,
@@ -271,5 +283,6 @@ module.exports = {
     getSingleProductController,
     getProductPhotoController,
     filterProductsController,
-    searchProductController
+    searchProductController,
+    getAllCategoryProductsController
 };
