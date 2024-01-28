@@ -8,6 +8,17 @@ const asyncWrapper = require('../middleware/asyncWrapper')
 
 const { comparePassword, hashPassword } = require("../helpers/auth.helper");
 
+
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await userModel.find(); // Retrieve all users from the database
+        res.status(200).send(users); // Return the users as JSON
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+}
 const registerController = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -128,4 +139,4 @@ const testController = (req, res) => {
 };
 
 
-module.exports = { registerController, loginController, testController }
+module.exports = { registerController, loginController, testController, getAllUsers }
