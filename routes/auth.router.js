@@ -9,7 +9,7 @@ router.route('/register').post(registerController)
 router.route('/login').post(loginController)
 
 
-router.route("/test").get(requireSignIn, isAdmin, testController);
+// router.route("/test").get(requireSignIn, isAdmin, testController);
 
 router.route('/get-all-users').get(getAllUsers)
 router.route('/get-single-user/:id').get(getSingleUser)
@@ -17,3 +17,4 @@ router.route('/update-user/:id').put(requireSignIn, formidable(), updateUserCont
 router.route('/get-user-photo/:id').get(getUserPhotoController);
 router.route('/delete-user/:id').delete(requireSignIn, deleteUserController)
 module.exports = router
+

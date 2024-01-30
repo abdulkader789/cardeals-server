@@ -58,23 +58,24 @@ const updateUserController = async (req, res) => {
 
 const getUserPhotoController = async (req, res) => {
     try {
-        const userId = req.params.id; // Extract the photo ID from request parameters
+        const userId = req.params.id;
+        const user = await userModel.findById(userId).select('photo');
 
-        // Find the photo by ID in MongoDB and select specific fields
-        const user = await userModel.findById(userId).select('photo'); // Example: Selecting title and imageUrl fields
-        if (user.photo.data) {
-            res.set("Content-type", user.photo.contentType)
-            return res.status(200).send(user.photo.data);
-        } else {
-            return res.status(404).send({ message: 'Photo not found' });
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
         }
 
+        if (!user.photo || !user.photo.data) {
+            return res.status(404).send({ message: 'Photo not found for this user' });
+        }
+
+        res.set("Content-type", user.photo.contentType);
+        return res.status(200).send(user.photo.data);
     } catch (error) {
         console.error('Error fetching photo:', error);
-        res.status(500).send({ message: 'Server error' });
+        return res.status(500).send({ message: 'Server error' });
     }
 };
-
 
 
 const getAllUsers = async (req, res) => {

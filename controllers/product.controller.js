@@ -181,25 +181,29 @@ const updateProductController = async (req, res) => {
     const productId = req.params.productId;
 
     try {
-        const product = await Product.findById(productId);
+        const { name, description, category, price, quantity, shipping, url, seatingCapacity, engine, transmission, fuelEfficiency, color, range, acceleration, chargingTime, popularity, trending, newArrivals, brand } = req.fields;
+        const updateFields = {};
 
-        if (!product) {
-            return res.status(404).send({ error: 'Product not found' });
-        }
+        if (name) updateFields.name = name;
+        if (description) updateFields.description = description;
+        if (category) updateFields.category = category;
+        if (price) updateFields.price = price;
+        if (quantity) updateFields.quantity = quantity;
+        if (shipping) updateFields.shipping = shipping;
+        if (popularity) updateFields.popularity = popularity; // Update based on req.fields
+        if (trending) updateFields.trending = trending; // Update based on req.fields
+        if (newArrivals) updateFields.newArrivals = newArrivals; // Update based on req.fields
+        if (url) updateFields.url = url;
+        if (seatingCapacity) updateFields.seatingCapacity = seatingCapacity; // Update based on req.fields
+        if (engine) updateFields.engine = engine; // Update based on req.fields
+        if (transmission) updateFields.transmission = transmission; // Update based on req.fields
+        if (fuelEfficiency) updateFields.fuelEfficiency = fuelEfficiency; // Update based on req.fields
+        if (color) updateFields.color = color; // Update based on req.fields
+        if (range) updateFields.range = range; // Update based on req.fields
+        if (acceleration) updateFields.acceleration = acceleration; // Update based on req.fields
+        if (chargingTime) updateFields.chargingTime = chargingTime; // Update based on req.fields
+        if (brand) updateFields.brand = brand; // Update based on req.fields
 
-        const { name, description, category, price, quantity, shipping, url } = req.fields;
-
-        // Update fields if provided
-        if (name) product.name = name;
-        if (description) product.description = description;
-        if (category) product.category = category;
-        if (price) product.price = price;
-        if (quantity) product.quantity = quantity;
-        if (shipping) product.shipping = shipping;
-        if (req.fields.popularity) product.popularity = req.fields.popularity;
-        if (req.fields.trending) product.trending = req.fields.trending;
-        if (req.fields.newArrivals) product.newArrivals = req.fields.newArrivals;
-        if (url) product.url = url
 
         // Update photo if provided
         if (req.files && req.files.photo) {
@@ -207,12 +211,19 @@ const updateProductController = async (req, res) => {
             if (photo.size > 1000000) {
                 return res.status(400).send({ error: 'Image size should be less than 1MB' });
             }
-            product.photo.data = fs.readFileSync(photo.path);
-            product.photo.contentType = photo.type;
+            updateFields.photo = {
+                data: fs.readFileSync(photo.path),
+                contentType: photo.type
+            };
         }
 
-        await product.save();
-        res.status(200).send({ success: true, message: 'Product updated successfully', product });
+        const updatedProduct = await Product.findByIdAndUpdate(productId, updateFields, { new: true });
+
+        if (!updatedProduct) {
+            return res.status(404).send({ error: 'Product not found' });
+        }
+
+        res.status(200).send({ success: true, message: 'Product updated successfully', product: updatedProduct });
     } catch (error) {
         res.status(500).send({ error: 'Error updating product', details: error.message });
     }
@@ -222,23 +233,22 @@ const updateProductController = async (req, res) => {
 
 
 
-
 const deleteProductController = async (req, res) => {
     const productId = req.params.productId;
 
     try {
-        const product = await Product.findById(productId);
+        const product = await Product.findOneAndDelete({ _id: productId });
 
         if (!product) {
             return res.status(404).send({ error: 'Product not found' });
         }
 
-        await product.remove();
         res.status(200).send({ success: true, message: 'Product deleted successfully' });
     } catch (error) {
         res.status(500).send({ error: 'Error deleting product', details: error.message });
     }
 };
+
 
 const getSingleProductController = async (req, res) => {
     const productId = req.params.productId;

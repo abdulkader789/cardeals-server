@@ -31,14 +31,14 @@ const createOrder = async (req, res) => {
         await newOrder.save();
 
         // Return the newly created order as response
-        res.status(201).json({
+        res.status(201).send({
             success: true,
             message: 'Order created successfully',
             order: newOrder
         });
     } catch (error) {
         console.error('Error in creating order:', error);
-        res.status(500).json({
+        res.status(500).send({
             success: false,
             message: 'Error in creating order',
             error: error
@@ -55,7 +55,7 @@ const updateOrderStatusToConfirmed = async (req, res) => {
 
         if (!order) {
             // If order is not found, return a 404 response
-            return res.status(404).json({
+            return res.status(404).send({
                 success: false,
                 message: "Order not found",
             });
@@ -66,14 +66,14 @@ const updateOrderStatusToConfirmed = async (req, res) => {
         await order.save();
 
         // If order is updated successfully, return success response
-        res.status(200).json({
+        res.status(200).send({
             success: true,
             message: "Order status updated to Confirmed",
             order: order,
         });
     } catch (error) {
         console.error("Error in updating order status:", error);
-        res.status(500).json({
+        res.status(500).send({
             success: false,
             message: "Error in updating order status",
             error: error,
@@ -86,7 +86,7 @@ const getConfirmedOrders = async (req, res) => {
     try {
         const { ids } = req.body; // Extract the array of product IDs from the request body
         if (!ids || !Array.isArray(ids)) {
-            return res.status(400).json({ error: 'Invalid IDs array' });
+            return res.status(400).send({ error: 'Invalid IDs array' });
         }
 
         // Query the Product model to find products with IDs in the provided array
@@ -99,11 +99,11 @@ const getConfirmedOrders = async (req, res) => {
         const totalPrice = prices.reduce((acc, curr) => acc + curr, 0);
 
         // Return the total price along with the confirmed orders
-        res.status(200).json({ success: true, totalPrice, products });
+        res.status(200).send({ success: true, totalPrice, products });
     } catch (error) {
         // Handle any errors
         console.error('Error:', error.message);
-        res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
+        res.status(500).send({ error: 'Failed to fetch orders', details: error.message });
     }
 };
 
@@ -116,20 +116,20 @@ const getSingleOrder = async (req, res) => {
 
         if (!order) {
             // If order is not found, return a 404 response
-            return res.status(404).json({
+            return res.status(404).send({
                 success: false,
                 message: "Order not found",
             });
         }
 
         // If order is found, return the order details
-        res.status(200).json({
+        res.status(200).send({
             success: true,
             order: order,
         });
     } catch (error) {
         console.error("Error in fetching order:", error);
-        res.status(500).json({
+        res.status(500).send({
             success: false,
             message: "Error in fetching order",
             error: error,

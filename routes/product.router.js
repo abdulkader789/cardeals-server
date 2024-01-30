@@ -32,6 +32,8 @@ router.route('/search-product').post(searchProductController);
 // Update Product by ID
 router.route('/update-product/:productId').put(requireSignIn, isAdmin, formidable(), updateProductController);
 
+
+
 // Delete Product by ID
 router.route('/delete-product/:productId').delete(requireSignIn, isAdmin, deleteProductController,);
 
