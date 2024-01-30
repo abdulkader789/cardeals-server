@@ -21,7 +21,7 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/category', categoryRouter)
 app.use('/api/v1/product', productRouter)
 // app.use('/api/v1/user', userRouter)
-// app.use('/api/v1/order', orderRouter)
+app.use('/api/v1/order', orderRouter)
 
 
 const port = process.env.PORT || 3000;

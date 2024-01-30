@@ -20,6 +20,6 @@ router.route('/delete-category/:categoryId').delete(requireSignIn, isAdmin, dele
 
 // Get All Categories
 router.route('/get-all-categories').get(getAllCategoriesController);
-router.route('/get-single-category/:slug').get(getSingleCategoryController)
+router.route('/get-single-category/:id').get(getSingleCategoryController)
 
 module.exports = router;

@@ -6,7 +6,7 @@ const { default: slugify } = require('slugify');
 const createProductController = async (req, res) => {
     try {
         // Extract fields and files from the request
-        const { name, model, description, category, price, quantity, url, seatingCapacity, engine, transmission, fuelEfficiency, color, range, acceleration, chargingTime, popular, trending, availability } = req.fields;
+        const { name, model, description, category, price, quantity, url, seatingCapacity, engine, transmission, brand, fuelEfficiency, color, range, acceleration, chargingTime, popular, trending, availability } = req.fields;
         const { photo } = req.files;
 
         // Create slug from the product name
@@ -16,6 +16,7 @@ const createProductController = async (req, res) => {
         let productData = {
             name,
             model,
+            brand,
             description,
             category,
             price,
@@ -249,7 +250,7 @@ const getSingleProductController = async (req, res) => {
             return res.status(404).send({ error: 'Product not found' });
         }
 
-        res.status(200).send({ success: true, product });
+        res.status(200).send({ success: true, product: product });
     } catch (error) {
         res.status(500).send({ error: 'Error getting product', details: error.message });
     }

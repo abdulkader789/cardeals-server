@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+    product: {
+        type: Object, // Assuming product details will be an object
         required: true
     },
     userId: {
@@ -11,7 +10,6 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-
     name: {
         type: String,
         required: true
@@ -27,8 +25,7 @@ const orderSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    }
-    ,
+    },
     appointmentDateTime: {
         type: Date,
         required: true

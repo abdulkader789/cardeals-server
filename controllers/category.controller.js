@@ -9,13 +9,13 @@ const asyncWrapper = require('../middleware/asyncWrapper')
 
 const getSingleCategoryController = async (req, res) => {
     try {
-        const { slug } = req.params;
+        const { id } = req.params;
 
-        if (!slug) {
-            return res.status(400).json({ message: 'Category slug is required' });
+        if (!id) {
+            return res.status(400).json({ message: 'Category id is required' });
         }
 
-        const category = await categoryModel.findOne({ slug });
+        const category = await categoryModel.findOne({ _id: id });
 
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
@@ -94,35 +94,44 @@ const updateCategoryController = async (req, res) => {
         const { categoryId } = req.params;
         const { name, status } = req.body;
 
+        // Validate required fields
         if (!categoryId || !name) {
-            return res.status(400).send({ message: 'Category ID and Name are required' });
+            return res.status(400).json({ success: false, message: 'Category ID and Name are required' });
         }
 
-        const existingCategory = await categoryModel.findByIdAndUpdate(categoryId, {
-            name,
-            status,
-            slug: slugify(name),
-        }, { new: true });
+        // Update category document
+        const updatedCategory = await categoryModel.findByIdAndUpdate(
+            categoryId,
+            {
+                name,
+                status,
+                slug: slugify(name), // Assuming you have a function to generate slug
+            },
+            { new: true } // Return the updated document
+        );
 
-        if (!existingCategory) {
-            return res.status(404).send({ message: 'Category not found' });
+        // Check if category was found and updated
+        if (!updatedCategory) {
+            return res.status(404).json({ success: false, message: 'Category not found' });
         }
 
-        res.status(200).send({
+        // Return success response with updated category
+        res.status(200).json({
             success: true,
             message: 'Category updated successfully',
-            category: existingCategory,
+            updatedCategory,
         });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send({
+        console.error('Error updating category:', error);
+        res.status(500).json({
             success: false,
             error,
             message: 'Error updating category',
         });
     }
-}
+};
+
 
 const deleteCategoryController = async (req, res) => {
     try {

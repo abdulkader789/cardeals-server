@@ -10,6 +10,78 @@ const getAllOrders = async (req, res) => {
         res.status(500).send('Server Error');
     }
 }
+
+const createOrder = async (req, res) => {
+    try {
+        const { product, userId, name, email, phone, message, appointmentDateTime } = req.body;
+
+        // Create a new order instance
+        const newOrder = new Order({
+            product, // Include entire product details in the order
+            userId,
+            name,
+            email,
+            phone,
+            message,
+            appointmentDateTime,
+            status: 'Pending' // Set initial status to 'Pending'
+        });
+
+        // Save the new order to the database
+        await newOrder.save();
+
+        // Return the newly created order as response
+        res.status(201).json({
+            success: true,
+            message: 'Order created successfully',
+            order: newOrder
+        });
+    } catch (error) {
+        console.error('Error in creating order:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in creating order',
+            error: error
+        });
+    }
+};
+
+const updateOrderStatusToConfirmed = async (req, res) => {
+    try {
+        const orderId = req.params.id; // Get the order ID from request parameters
+
+        // Retrieve the order from the database by ID
+        const order = await Order.findById({ _id: orderId });
+
+        if (!order) {
+            // If order is not found, return a 404 response
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        // Update the status of the order to "Confirmed"
+        order.status = 'Confirmed';
+        await order.save();
+
+        // If order is updated successfully, return success response
+        res.status(200).json({
+            success: true,
+            message: "Order status updated to Confirmed",
+            order: order,
+        });
+    } catch (error) {
+        console.error("Error in updating order status:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error in updating order status",
+            error: error,
+        });
+    }
+};
+
+
 const getConfirmedOrders = async (req, res) => {
     try {
         const { ids } = req.body; // Extract the array of product IDs from the request body
@@ -34,4 +106,36 @@ const getConfirmedOrders = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
     }
 };
-module.exports = { getAllOrders, getConfirmedOrders }
+
+const getSingleOrder = async (req, res) => {
+    try {
+        const orderId = req.params.id; // Get the order ID from request parameters
+
+        // Retrieve the order from the database by ID
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            // If order is not found, return a 404 response
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        // If order is found, return the order details
+        res.status(200).json({
+            success: true,
+            order: order,
+        });
+    } catch (error) {
+        console.error("Error in fetching order:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error in fetching order",
+            error: error,
+        });
+    }
+};
+
+
+module.exports = { getAllOrders, getConfirmedOrders, getSingleOrder, updateOrderStatusToConfirmed, createOrder }
