@@ -2,116 +2,29 @@ const dotenv = require('dotenv');
 dotenv.config();
 const JWT = require('jsonwebtoken')
 const userModel = require('../models/userModel');
-const formidable = require('formidable');
-const fs = require('fs');
+
 const asyncWrapper = require('../middleware/asyncWrapper')
 
 
 const { comparePassword, hashPassword } = require("../helpers/auth.helper");
+const { generateAccessToken, generateRefreshToken } = require("../helpers/JWTTokens")
 
-const updateUserController = async (req, res) => {
-    const userId = req.params.id;
-
-    try {
-        const { name, email, password, address, role } = req.fields;
-        const existingUser = await userModel.findById(userId);
-        if (!existingUser) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        const updatedUser = await userModel.findByIdAndUpdate(
-            userId,
-            { name, email, address, role }, // Update fields if provided
-            { new: true } // Return the updated document
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        // Update password if provided
-        if (password) {
-            // Hash the new password
-            const hashedPassword = await hashPassword(password);
-            updatedUser.password = hashedPassword;
-            await updatedUser.save(); // Save the updated password
-        }
-
-        // Update photo if provided
-        if (req.files && req.files.photo) {
-            const { photo } = req.files;
-            if (photo.size > 1000000) {
-                return res.status(400).json({ success: false, error: 'Image size should be less than 1MB' });
-            }
-            updatedUser.photo.data = fs.readFileSync(photo.path);
-            updatedUser.photo.contentType = photo.type;
-            await updatedUser.save(); // Save the updated photo
-        }
-
-        res.status(200).json({ success: true, message: 'User updated successfully', user: updatedUser });
-    } catch (error) {
-        console.error('Error updating user:', error);
-        res.status(500).json({ success: false, error, message: 'Error updating user' });
-    }
-};
-
-
-const getUserPhotoController = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const user = await userModel.findById(userId).select('photo');
-
-        if (!user) {
-            return res.status(404).send({ message: 'User not found' });
-        }
-
-        if (!user.photo || !user.photo.data) {
-            return res.status(404).send({ message: 'Photo not found for this user' });
-        }
-
-        res.set("Content-type", user.photo.contentType);
-        return res.status(200).send(user.photo.data);
-    } catch (error) {
-        console.error('Error fetching photo:', error);
-        return res.status(500).send({ message: 'Server error' });
-    }
-};
-
-
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await userModel.find(); // Retrieve all users from the database
-        res.status(200).send(users); // Return the users as JSON
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-}
 const registerController = async (req, res) => {
     try {
         const { email, password } = req.body;
         //validations
 
         if (!email) {
-            return res.send({ error: "Email is Required" });
+            return res.json({ error: "Email is Required" });
         }
         if (!password) {
-            return res.send({ error: "Password is Required" });
+            return res.json({ error: "Password is Required" });
         }
-        // if (!name) {
-        //     return res.send({ error: "Name is Required" });
-        // }
-        // if (!phone) {
-        //     return res.send({ error: "Phone no is Required" });
-        // }
-        // if (!address) {
-        //     return res.send({ error: "Address is Required" });
-        // }
-        //check user
+
         const existingUser = await userModel.findOne({ email });
         //exisiting user
         if (existingUser) {
-            return res.status(200).send({
+            return res.status(200).json({
                 success: true,
                 message: "Already Register please login",
             });
@@ -126,14 +39,14 @@ const registerController = async (req, res) => {
             password: hashedPassword,
         }).save();
 
-        res.status(201).send({
+        res.status(201).json({
             success: true,
             message: "User Register Successfully",
-            user: user,
+
         });
     } catch (error) {
         console.log(error);
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: "Errro in Registeration",
             error,
@@ -145,114 +58,83 @@ const registerController = async (req, res) => {
 const loginController = async (req, res) => {
     try {
         const { email, password } = req.body;
-        //validation
+
+        // Validation
         if (!email || !password) {
-            return res.status(404).send({
-                success: false,
-                message: "Invalid email or password",
-            });
+            return res.status(400).json({ success: false, message: "Invalid email or password" });
         }
-        //check user
+
+        // Check if user exists
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(404).send({
-                success: false,
-                message: "Email is not registerd",
-            });
+            return res.status(404).json({ success: false, message: "Email is not registered" });
         }
+
+        // Compare passwords
         const match = await comparePassword(password, user.password);
         if (!match) {
-            return res.status(200).send({
-                success: false,
-                message: "Invalid Password",
-            });
+            return res.status(400).json({ success: false, message: "Invalid password" });
         }
-        //token
-        const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "7d",
-        });
-        res.status(200).send({
+
+        // Generate access token
+        const accessToken = generateAccessToken(user._id);
+
+        // Generate refresh token
+        const refreshToken = generateRefreshToken(user._id);
+
+        // Set refresh token in cookie
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' });
+
+        // Set access token in response header
+        res.header('Authorization', `Bearer ${accessToken}`);
+
+        // json user details and tokens in response
+        res.status(200).json({
             success: true,
-            message: "login successfully",
+            message: "Login successful",
             user: {
                 _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                adddress: user.address,
-                role: user.role
+                email: user.email
             },
-            token,
+            accessToken: accessToken,
+            refreshToken: refreshToken
         });
     } catch (error) {
         console.log(error);
-        res.status(500).send({
-            success: false,
-            message: "Error in login",
-            error,
-        });
-    }
-};
-
-const getSingleUser = async (req, res) => {
-    try {
-        const userId = req.params.id; // Assuming the user ID is passed in the request parameters
-
-        // Retrieve the user from the database by ID
-        const user = await userModel.findById(userId);
-
-        if (!user) {
-            // If user is not found, return a 404 response
-            return res.status(404).send({
-                success: false,
-                message: "User not found",
-            });
-        }
-
-        // If user is found, return the user details
-        res.status(200).send({
-            success: true,
-            user: user,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            success: false,
-            message: "Error in retrieving user",
-            error,
-        });
+        res.status(500).json({ success: false, message: "Error in login", error });
     }
 };
 
 
-//test controller
-const testController = (req, res) => {
-    try {
-        res.send("Protected Routes");
-    } catch (error) {
-        console.log(error);
-        res.send({ error });
-    }
-};
+const refreshController = async (req, res) => {
+    let refreshToken;
 
-const deleteUserController = async (req, res) => {
-    const userId = req.params.id;
+    // Check if refresh token is in cookies
+    if (req.cookies && req.cookies.refreshToken) {
+        refreshToken = req.cookies.refreshToken;
+    }
+
+    // Check if refresh token is in headers
+    if (!refreshToken && req.headers['authorization']) {
+        const authHeader = req.headers['authorization'];
+        refreshToken = authHeader.split(' ')[1]; // Extract token from Authorization header
+    }
+
+    if (!refreshToken) {
+        return res.status(401).json('Access Denied. No refresh token provided.');
+    }
 
     try {
-        // Check if the user exists
-        const existingUser = await userModel.findById(userId);
-        if (!existingUser) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
+        const decoded = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = generateAccessToken(decoded.user);
 
-        // Delete the user
-        const deletedUser = await userModel.findOneAndDelete({ _id: userId })
-
-        res.status(200).json({ success: true, message: 'User deleted successfully' });
+        res
+            .header('Authorization', `Bearer ${accessToken}`)
+            .json(decoded.user);
     } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ success: false, error, message: 'Error deleting user' });
+        console.error(error);
+        return res.status(400).json('Invalid refresh token');
     }
 };
 
-module.exports = { registerController, loginController, testController, updateUserController, getAllUsers, getSingleUser, getUserPhotoController, deleteUserController }
+module.exports = { registerController, loginController, refreshController }

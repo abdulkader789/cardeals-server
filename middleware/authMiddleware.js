@@ -1,47 +1,51 @@
-const JWT = require('jsonwebtoken')
+const JWT = require('jsonwebtoken');
 const userModel = require("../models/userModel");
 
-//Protected Routes token base
-const requireSignIn = async (req, res, next) => {
+const authenticate = (req, res, next) => {
+    const accessToken = req.headers['authorization'];
+    const refreshToken = req.cookies['refreshToken'];
+
+    if (!accessToken && !refreshToken) {
+        return res.status(401).json({ error: 'Access Denied. No token provided.' });
+    }
+
     try {
-        const authorizationHeader = req.headers.authorization;
+        if (accessToken) {
+            const decodedAccessToken = JWT.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+            req.user = decodedAccessToken.user;
+            return next();
+        } else {
+            const decodedRefreshToken = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            const newAccessToken = JWT.sign({ user: decodedRefreshToken.user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
 
-        if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'Unauthorized' });
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' });
+            res.header('Authorization', `Bearer ${newAccessToken}`);
+            req.user = decodedRefreshToken.user;
+            return next();
         }
-
-        const token = authorizationHeader.split(' ')[1];
-        const decode = JWT.verify(token, process.env.JWT_SECRET);
-
-        req.user = decode;
-        next();
     } catch (error) {
-        console.error(error);
-        res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Invalid Token.' });
     }
 };
 
 
-//admin acceess
+// Admin access middleware
 const isAdmin = async (req, res, next) => {
     try {
-
         const userId = req.user._id;
         const user = await userModel.findById(userId);
 
         if (!user || user.role !== 1) {
-            return res.status(401).send({
+            return res.status(401).json({
                 success: false,
                 message: "UnAuthorized Access",
             });
         } else {
-            next();
+            return next();
         }
-
-
     } catch (error) {
         console.log(error);
-        res.status(401).send({
+        res.status(401).json({
             success: false,
             error,
             message: 'Error in admin middleware',
@@ -49,5 +53,4 @@ const isAdmin = async (req, res, next) => {
     }
 };
 
-
-module.exports = { requireSignIn, isAdmin }
+module.exports = { isAdmin, authenticate };
