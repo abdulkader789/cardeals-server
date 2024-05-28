@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Schema for Model
 const modelSchema = new mongoose.Schema({
@@ -7,14 +7,17 @@ const modelSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    brand: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Brand'
-    },
+
     categories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
     }],
+
+    brand: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Brand'
+    },
+
     status: {
         type: Boolean,
         default: true
@@ -24,4 +27,4 @@ const modelSchema = new mongoose.Schema({
 // Define the Model model
 const Model = mongoose.model('Model', modelSchema);
 
-module.exports = Model;
+export default Model;
