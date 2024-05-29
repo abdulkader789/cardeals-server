@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 
+const { Schema } = mongoose;
+
 // Schema for Brand
-const brandSchema = new mongoose.Schema({
+const brandSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -10,11 +12,15 @@ const brandSchema = new mongoose.Schema({
     imageURL: {
         type: String
     },
-
     status: {
-        type: Boolean,
-        default: true
-    }
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active' // Default status to active
+    },
+    categories: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Category'
+    }]
 });
 
 // Define the Brand model

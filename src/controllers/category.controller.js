@@ -49,6 +49,8 @@ const getAllCategories = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, categories, "Categories fetched successfully"));
 });
 
+
+
 // Get a single category by ID
 const getCategoryById = asyncHandler(async (req, res) => {
     const { id } = req.params;

@@ -7,7 +7,11 @@ const modelSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active' // Default status to active
+    },
     categories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
@@ -18,10 +22,7 @@ const modelSchema = new mongoose.Schema({
         ref: 'Brand'
     },
 
-    status: {
-        type: Boolean,
-        default: true
-    }
+    
 });
 
 // Define the Model model

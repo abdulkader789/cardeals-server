@@ -5,9 +5,9 @@ const carSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  model: {
+  category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Model',
+    ref: 'Category',
     required: true,
   },
   brand: {
@@ -15,14 +15,16 @@ const carSchema = new mongoose.Schema({
     ref: 'Brand',
     required: true,
   },
+  model: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Model',
+    required: true,
+  },
+
   description: {
     type: String,
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true,
-  },
+ 
   price: {
     type: Number,
     required: true,
