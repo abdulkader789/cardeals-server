@@ -7,7 +7,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Create a new category
 const createCategory = asyncHandler(async (req, res) => {
-    const { name } = req.body;
+    const { name,status } = req.body;
 
     if (!name?.trim()) {
         throw new ApiError(400, "Category name is required");
@@ -27,13 +27,14 @@ const createCategory = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is required")
 
     }
-    const imageURL = await uploadOnCloudinary(imageLocalPath);
+    const image = await uploadOnCloudinary(imageLocalPath);
 
 
     const category = await Category.create({
         name,
         slug,
-        imageURL:imageURL.url,
+        status,
+        image:image.url,
     });
 
     return res.status(201).json(new ApiResponse(201, category, "Category created successfully"));

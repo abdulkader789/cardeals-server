@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 // Create a new model
 const createModel = asyncHandler(async (req, res) => {
-    const { name, category, brand } = req.body;
+    const { name, category,brand } = req.body;
 
     if (!name?.trim()) {
         throw new ApiError(400, "Model name is required");
@@ -28,7 +28,9 @@ const createModel = asyncHandler(async (req, res) => {
 
 // Get all models
 const getAllModels = asyncHandler(async (req, res) => {
-    const models = await Model.find().populate('category').populate('brand');
+    // const models = await Model.find().populate('brand');
+    const models = await Model.find();
+
 
     return res.status(200).json(new ApiResponse(200, models, "Models fetched successfully"));
 });

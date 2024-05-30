@@ -1,38 +1,38 @@
-import slugify from 'slugify';
+// controllers/brand.controller.js
+import Brand from "../models/brand.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { Brand } from "../models/brand.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Create a new brand
 const createBrand = asyncHandler(async (req, res) => {
-    const { name } = req.body;
+    const { name,  status, category } = req.body;
 
     if (!name?.trim()) {
         throw new ApiError(400, "Brand name is required");
     }
 
-    const slug = slugify(name, { lower: true });
-
-    const existingBrand = await Brand.findOne({ slug });
+    const existingBrand = await Brand.findOne({ name });
 
     if (existingBrand) {
         throw new ApiError(409, "Brand with this name already exists");
     }
+   
 
     const imageLocalPath = req.file?.path;
 
     if (!imageLocalPath) {
-        throw new ApiError(400, "Image file is required");
-    }
+        throw new ApiError(400, "Avatar file is required")
 
-    const imageURL = await uploadOnCloudinary(imageLocalPath);
+    }
+    const image = await uploadOnCloudinary(imageLocalPath);
 
     const brand = await Brand.create({
         name,
-        slug,
-        imageURL: imageURL.url,
+        image:image.url,
+        status,
+        category,
     });
 
     return res.status(201).json(new ApiResponse(201, brand, "Brand created successfully"));
@@ -40,7 +40,9 @@ const createBrand = asyncHandler(async (req, res) => {
 
 // Get all brands
 const getAllBrands = asyncHandler(async (req, res) => {
-    const brands = await Brand.find().populate('categories');
+    // const brands = await Brand.find().populate('categories');
+    const brands = await Brand.find();
+
 
     return res.status(200).json(new ApiResponse(200, brands, "Brands fetched successfully"));
 });
@@ -61,19 +63,17 @@ const getBrandById = asyncHandler(async (req, res) => {
 // Update a brand
 const updateBrand = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, status, categories } = req.body;
+    const { name, image, status, categories } = req.body;
 
     if (!name?.trim()) {
         throw new ApiError(400, "Brand name is required");
     }
 
-    const slug = slugify(name, { lower: true });
-
     const brand = await Brand.findByIdAndUpdate(
         id,
-        { name, slug, status, categories },
+        { name, image, status, categories },
         { new: true, runValidators: true }
-    );
+    ).populate('categories');
 
     if (!brand) {
         throw new ApiError(404, "Brand not found");
@@ -95,10 +95,4 @@ const deleteBrand = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "Brand deleted successfully"));
 });
 
-export {
-    createBrand,
-    getAllBrands,
-    getBrandById,
-    updateBrand,
-    deleteBrand,
-};
+export { createBrand, getAllBrands, getBrandById, updateBrand, deleteBrand };

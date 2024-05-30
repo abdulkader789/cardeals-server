@@ -12,7 +12,7 @@ const categorySchema = new mongoose.Schema({
         unique: true,
         lowercase: true // Ensure slugs are lowercase
     },
-    imageURL: {
+    image: {
         type: String
     },
     status: {

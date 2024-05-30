@@ -13,7 +13,7 @@ import { verifyJWT } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 // Route to create a new category (Admin only)
-router.post('/create-category', verifyJWT, isAdmin, upload.single('imageURL'), createCategory);
+router.post('/create-category', verifyJWT, isAdmin, upload.single('image'), createCategory);
 
 // Route to get all categories
 router.get('/get-all-categories', getAllCategories);

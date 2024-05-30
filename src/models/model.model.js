@@ -12,10 +12,10 @@ const modelSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active' // Default status to active
     },
-    categories: [{
+    category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
-    }],
+    },
 
     brand: {
         type: mongoose.Schema.Types.ObjectId,
@@ -26,6 +26,6 @@ const modelSchema = new mongoose.Schema({
 });
 
 // Define the Model model
-const Model = mongoose.model('Model', modelSchema);
+export const  Model = mongoose.model('Model', modelSchema);
 
-export default Model;
+

@@ -19,10 +19,19 @@ app.use(cookieParser())
 //routes import
 import userRouter from './routes/user.routes.js'
 import categoryRouter from './routes/category.routes.js'
+import brandRouter from './routes/brand.routes.js'
+import modelRouter from './routes/model.routes.js'
+import carRouter from './routes/car.routes.js'
+
+
+
 
 //routes declaration
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/category", categoryRouter)
+app.use("/api/v1/brand", brandRouter)
+app.use("/api/v1/model", modelRouter)
+app.use("/api/v1/car", carRouter)
 
 
 

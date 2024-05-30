@@ -13,7 +13,7 @@ import { verifyJWT } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 // Route to create a new brand (Admin only)
-router.post('/create-brand', verifyJWT, isAdmin, upload.single('imageURL'), createBrand);
+router.post('/create-brand', verifyJWT, isAdmin, upload.single('image'), createBrand);
 
 // Route to get all brands
 router.get('/get-all-brands', getAllBrands);

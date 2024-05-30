@@ -33,7 +33,7 @@ const carSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  imageURL: {
+  image: {
     type: String, // cloudinary url
 
   },
@@ -77,5 +77,5 @@ const carSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-const Car = mongoose.model('Car', carSchema);
-export default Car;
+export const Car = mongoose.model('Car', carSchema);
+
