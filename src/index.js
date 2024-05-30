@@ -23,7 +23,7 @@ import brandRouter from './routes/brand.routes.js'
 import modelRouter from './routes/model.routes.js'
 import carRouter from './routes/car.routes.js'
 
-app.get('/src', (req, res) => {
+app.get('/src/index.js', (req, res) => {
     res.send("<h1>Node Server is Running Successfully</h1>")
 })
 
