@@ -23,9 +23,7 @@ import brandRouter from './routes/brand.routes.js'
 import modelRouter from './routes/model.routes.js'
 import carRouter from './routes/car.routes.js'
 
-app.get('/src/index.js', (req, res) => {
-    res.send("<h1>Node Server is Running Successfully</h1>")
-})
+
 
 
 //routes declaration
@@ -35,6 +33,10 @@ app.use("/api/v1/brand", brandRouter)
 app.use("/api/v1/model", modelRouter)
 app.use("/api/v1/car", carRouter)
 
+// New root route for Vercel deployment
+app.get("/", (req, res) => {
+    res.send("Server is running on Vercel!");
+});
 
 
 // http://localhost:8000/api/v1/users/register
