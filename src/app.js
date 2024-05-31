@@ -6,7 +6,7 @@ import connectDB from './db/connect.js';
 const app = express()
 
 app.use(cors({
-    origin: "https://abdulkader789-cardeals.netlify.app/",
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }))
 
