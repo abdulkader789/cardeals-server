@@ -16,8 +16,7 @@ const carSchema = new mongoose.Schema({
     required: true,
   },
   model: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Model',
+    type: String,
     required: true,
   },
 

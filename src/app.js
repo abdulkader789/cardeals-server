@@ -20,7 +20,6 @@ app.use(cookieParser())
 import userRouter from './routes/user.routes.js'
 import categoryRouter from './routes/category.routes.js'
 import brandRouter from './routes/brand.routes.js'
-import modelRouter from './routes/model.routes.js'
 import carRouter from './routes/car.routes.js'
 
 
@@ -30,7 +29,6 @@ import carRouter from './routes/car.routes.js'
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/category", categoryRouter)
 app.use("/api/v1/brand", brandRouter)
-app.use("/api/v1/model", modelRouter)
 app.use("/api/v1/car", carRouter)
 
 // New root route for Vercel deployment
